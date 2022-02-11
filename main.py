@@ -5,8 +5,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from math import *
 
 TIMEFRAME_GAP = 6
-BLUE = "6495ED"
-
 
 # ------------------------------------------Functionality-------------------------------------------------------------
 def save():
@@ -95,7 +93,6 @@ def save():
                     if angle_diff > 1:
                         angle_diff = 1
                     subtracted_angles_list.append(angle_diff)
-
                     scoreX = subtracted_angles_list[i]
                     # fun_value=100*(1/(1+pow((scoreX/0.5),4.5)))
                     fun_value = (-200 * pow(scoreX, 3.5)) + 100
@@ -228,39 +225,49 @@ def save():
                 else:
                     no_move_count = 0
                     return 100
-
+        s_index=[]
         def get_highest_score(player_data, template_data, count):
             # print(f"count={count}")
+            idx=0
             max = 0
             energy_score = 0
+            skipper=0
             i = int(count / 6 - 1)
             if i == 0:
-                p = 3
-            else:
                 p = 5
+            elif i==1:
+                p = 11
+            elif count+17>len(template_data)-1:
+                p=len(template_data)-1-count
+            else:
+                p=17
 
-                for l in range(count - p - 1, count + 4):
-                    angle_score = get_score(i, l, player_data, template_data)
-                    if angle_score >= max:
-                        max = angle_score
-                        if i > 0:
-                            energy_score = get_energy_score1(player_data, template_data, max, i, i - 1, count, count - 6)
-                    # print(f"energy_score={energy_score}")
-
+                for l in range(count - p -1, count + 17):
+                    if skipper==2:
+                        angle_score = get_score(i,l , player_data, template_data)
+                        if angle_score >= max:
+                            max = angle_score
+                            idx=l
+                            if i > 0:
+                                energy_score = get_energy_score1(player_data, template_data, max, i, i - 1, count, count - 6)
+                        skipper=0
+                    else:
+                        skipper+=1
+                s_index.append(idx)
             return ((max * energy_score) / 100)
 
         def get_score_list():
             score_list = []
             for count in range(0, len(formatted_template_data), 6):
                 score_list.append(get_highest_score(formatted_player_data, formatted_template_data, count))
-
+            print(s_index)
             #        print(sum(score_list)/len(formatted_player_data))
             return score_list
 
         def get_points():
             score = sum(get_score_list()) / len(formatted_player_data)
             return score
-
+        print(formatted_player_data)
         #
         #
         #
@@ -417,21 +424,23 @@ def save():
     except FileNotFoundError:
         open_popup("Invalid File Name!")
     except IndexError:
-        def destroy_canvas(canvas, frame):
-            canvas.get_tk_widget().destroy()
-            frame.destroy()
-        def clear():
-            destroy_canvas(canvas1, frame1)
-            destroy_canvas(canvas2, frame2)
-            destroy_canvas(canvas3, frame3)
-            destroy_canvas(canvas4, frame4)
-            destroy_canvas(canvas5, frame5)
-            destroy_canvas(canvas6, frame6)
-            destroy_canvas(canvas7, frame7)
-            destroy_canvas(canvas8, frame8)
-        clear()
-        open_popup("User dance does "
-                   "not match template!")
+        try:
+            def destroy_canvas(canvas, frame):
+                canvas.get_tk_widget().destroy()
+                frame.destroy()
+            def clear():
+                destroy_canvas(canvas1, frame1)
+                destroy_canvas(canvas2, frame2)
+                destroy_canvas(canvas3, frame3)
+                destroy_canvas(canvas4, frame4)
+                destroy_canvas(canvas5, frame5)
+                destroy_canvas(canvas6, frame6)
+                destroy_canvas(canvas7, frame7)
+                destroy_canvas(canvas8, frame8)
+                clear()
+        finally:
+            open_popup("User dance does "
+                       "not match template!")
 
 
 # --------------------------------------------UI SETUP---------------------------------------------------------------
